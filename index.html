@@ -139,6 +139,74 @@
             display: block;
             margin: 0 auto;
         }
+        .dice-display-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100px;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+/* Authentic physical square die look */
+.visual-die {
+  display: grid;
+  grid-template-areas:
+    "a . b"
+    "c d e"
+    "f . g";
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 70px;
+  height: 70px;
+  padding: 8px;
+  background-color: #ffffff; /* Classic white die background */
+  border: 3px solid #cbd5e1; /* Subtle dimensional border */
+  border-radius: 14px; /* Smooth rounded dice edges */
+  box-shadow: inset 0 -5px 0 #e2e8f0, 0 4px 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+/* Individual 3D look numbers fallback for high dice like D12/D20 */
+.visual-die.text-die {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+/* The physical rolling dot (pip) style */
+.pip {
+  display: block;
+  background-color: #1e293b; /* Dark ink dots */
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  margin: auto;
+}
+
+/* Dot placement mapping grids */
+.pip:nth-child(1) { grid-area: d; } /* Center dot (1, 3, 5) */
+.pip:nth-child(2) { grid-area: a; } /* Top Left */
+.pip:nth-child(3) { grid-area: g; } /* Bottom Right */
+.pip:nth-child(4) { grid-area: b; } /* Top Right */
+.pip:nth-child(5) { grid-area: f; } /* Bottom Left */
+.pip:nth-child(6) { grid-area: c; } /* Middle Left */
+.pip:nth-child(7) { grid-area: e; } /* Middle Right */
+
+/* Tumbling animation class */
+@keyframes tumble {
+  0% { transform: rotate(0deg) scale(1); }
+  20% { transform: rotate(-20deg) scale(1.1); }
+  40% { transform: rotate(35deg); }
+  70% { transform: rotate(-15deg); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.rolling {
+  animation: tumble 0.5s ease-in-out;
+}
 
         #wheelCanvas {
             display: block;
@@ -262,28 +330,25 @@
         </div>
 
         <!-- CARD 13: PLACEHOLDER BLOCKS -->
-        <div class="card">
-            <h2>Image Placeholder Mock</h2>
-            <label>Dimensions: <input type="text" id="holderSize" value="300x150"></label>
-            <div id="placeholderOutput"></div>
-            <button onclick="generatePlaceholder()">Output Layout Block</button>
-        </div>
+        <div class="card tool-section"> <!-- Note: Change "card tool-section" to match the exact class name used on your other tools -->
+  <h2>Roll the Dice!!</h2>
+  <!-- Card 14 -->
+  <h3>Select Die Type:</h3>
+  <select id="diceType">
+    <option value="1-6" selected>1x D6 (Standard)</option>
+    <option value="2-6">2x D6 (Pair)</option>
+    <option value="1-12">1x D12 (Single)</option>
+    <option value="2-12">2x D12 (Pair)</option>
+    <option value="1-20">1x D20 (Critical Roll)</option>
+    <option value="2-20">2x D20 (Double Crit)</option>
+  </select>
+  
+  <!-- This is the container where individual dice boxes generate -->
+  <div id="diceDisplayArea" class="dice-display-area"></div>
 
-        <!-- CARD 14: DICE ROLLER -->
-        <div class="card">
-            <h2>Tabletop Dice Engine</h2>
-            <label>Select Die Type:
-                <select id="diceType">
-                    <option value="6">D6 (Standard)</option>
-                    <option value="8">D8 (RPG)</option>
-                    <option value="12">D12 (RPG)</option>
-                    <option value="20">D20 (Critical Roll)</option>
-                </select>
-            </label>
-            <div class="output" id="diceOut">Result: --</div>
-            <button onclick="rollDice()">Roll Die</button>
-        </div>
-
+  <button id="rollButton">Roll Dice</button>
+  <p>Total Combined Score: <span id="combinedTotal">--</span></p>
+</div>
         <!-- CARD 15: WHEEL SPINNER -->
         <div class="card">
             <h2>Interactive Wheel Spinner</h2>
@@ -488,12 +553,88 @@
             document.getElementById('placeholderOutput').innerHTML = `<img src="${targetUrl}" alt="Placeholder Output">`;
         }
 
-        // --- DICE ENGINE ---
-        function rollDice() {
-            const faces = parseInt(document.getElementById('diceType').value);
-            const roll = Math.floor(Math.random() * faces) + 1;
-            document.getElementById('diceOut').textContent = `Rolled outcome: ${roll} (on D${faces})`;
-        }
+        const pipLayouts = {
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8]
+};
+
+// Function to draw either pips or fallback text numbers inside a die element
+function buildDieFace(dieElement, value, maxSides) {
+  dieElement.innerHTML = '';
+  
+  if (maxSides === 6 && pipLayouts[value]) {
+    dieElement.classList.remove('text-die');
+    // Generate the exact number of physical round dots required
+    pipLayouts[value].forEach(() => {
+      const pip = document.createElement('span');
+      pip.className = 'pip';
+      dieElement.appendChild(pip);
+    });
+  } else {
+    // For D12 and D20, fall back to clean text formatting
+    dieElement.classList.add('text-die');
+    dieElement.textContent = value;
+  }
+}
+
+// Function to read the current select state and draw static starting dice
+function initDiceLayout() {
+  const [diceCount, diceSides] = document.getElementById('diceType').value.split('-').map(Number);
+  const displayArea = document.getElementById('diceDisplayArea');
+  displayArea.innerHTML = '';
+
+  for (let i = 0; i < diceCount; i++) {
+    const die = document.createElement('div');
+    die.className = 'visual-die';
+    // Initialize with standard face values (e.g. 1 or 6)
+    buildDieFace(die, diceSides === 6 ? 6 : 1, diceSides);
+    displayArea.appendChild(die);
+  }
+}
+
+// Core rolling trigger handler
+document.getElementById('rollButton').addEventListener('click', () => {
+  const [diceCount, diceSides] = document.getElementById('diceType').value.split('-').map(Number);
+  const displayArea = document.getElementById('diceDisplayArea');
+  const totalElement = document.getElementById('combinedTotal');
+
+  displayArea.innerHTML = '';
+  totalElement.textContent = "Rolling...";
+
+  const activeDice = [];
+
+  // Generate spinning frames
+  for (let i = 0; i < diceCount; i++) {
+    const die = document.createElement('div');
+    die.className = 'visual-die rolling';
+    buildDieFace(die, diceSides === 6 ? 1 : '?', diceSides);
+    displayArea.appendChild(die);
+    activeDice.push(die);
+  }
+
+  setTimeout(() => {
+    let combinedSum = 0;
+
+    activeDice.forEach(die => {
+      const rollResult = Math.floor(Math.random() * diceSides) + 1;
+      buildDieFace(die, rollResult, diceSides);
+      die.classList.remove('rolling');
+      combinedSum += rollResult;
+    });
+
+    totalElement.textContent = combinedSum;
+  }, 500);
+});
+
+// CRITICAL: Redraw dice immediately when the user alters the select dropdown
+document.getElementById('diceType').addEventListener('change', initDiceLayout);
+
+// CRITICAL: Initialize the starting dice on screen right when the page finishes loading
+initDiceLayout();
 
         // --- WHEEL SPINNER GRAPHICS CORE ---
         let currentAngle = 0;
