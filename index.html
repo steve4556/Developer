@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Web Generator Toolset</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f9ff;
+            color: #334155;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e0f2fe;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            color: #1e40af;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f9ff;
+            padding-bottom: 8px;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .output {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            min-height: 24px;
+            font-size: 14px;
+            border: 1px solid #f1f5f9;
+            word-break: break-all;
+        }
+
+        .scrollable-output {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0 12px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .palette-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .color-swatch {
+            flex: 1;
+            height: 45px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+        }
+
+        #gradientPreview {
+            height: 60px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        #shadowPreview {
+            width: 60px;
+            height: 60px;
+            background: #2563eb;
+            margin: 10px auto;
+            border-radius: 6px;
+        }
+
+        #placeholderOutput img, #qrOutput img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #wheelCanvas {
+            display: block;
+            margin: 10px auto;
+            background: #fff;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ultimate Web Generator Toolset</h1>
+    <p class="subtitle">An advanced suite of custom development utilities and creative randomizers.</p>
+
+    <div class="dashboard">
+
+        <!-- CARD 1: CORE QUICK DATA -->
+        <div class="card">
+            <h2>Classic Core Suite</h2>
+            <div class="output" id="coreOut">
+                <p><strong>Password:</strong> <span id="passwordOut">-</span></p>
+                <p><strong>Name:</strong> <span id="nameOut">-</span></p>
+                <p><strong>Number (1-10):</strong> <span id="num1To10Out">-</span></p>
+                <p><strong>Number (1-100):</strong> <span id="num1To100Out">-</span></p>
+                <p><strong>Coin Flip:</strong> <span id="coinOut">-</span></p>
+            </div>
+            <button onclick="runCoreSuite()">Execute Suite</button>
+        </div>
+
+        <!-- CARD 2: USERNAME GENERATOR -->
+        <div class="card">
+            <h2>Username Handle Builder</h2>
+            <div class="output" id="usernameOut">Awaiting handles...</div>
+            <button onclick="generateUsernames()">Generate 3 Handles</button>
+        </div>
+
+        <!-- CARD 3: RANDOM FACTS & TRIVIA -->
+        <div class="card">
+            <h2>Random Facts & Trivia</h2>
+            <div class="output" id="triviaOut">Click to reveal an interesting fact...</div>
+            <button onclick="generateTrivia()">Next Fact</button>
+        </div>
+
+        <!-- CARD 4: ANAGRAM SCRAMBLER -->
+        <div class="card">
+            <h2>Anagram / Word Scrambler</h2>
+            <input type="text" id="scrambleInput" value="Developer" placeholder="Enter word to scramble">
+            <div class="output" id="scrambleOut">--</div>
+            <button onclick="scrambleWord()">Scramble Letters</button>
+        </div>
+
+        <!-- CARD 5: UUID/GUID GENERATOR -->
+        <div class="card">
+            <h2>UUID / GUID Key Generator</h2>
+            <div class="output" id="uuidOut">--</div>
+            <button onclick="generateUUID()">Generate RFC 4122 UUID</button>
+        </div>
+
+        <!-- CARD 6: LOREM IPSUM PLACEHOLDER TEXT -->
+        <div class="card">
+            <h2>Lorem Ipsum Text Builder</h2>
+            <label>Paragraph Count: <input type="number" id="loremCount" min="1" max="5" value="1"></label>
+            <div class="output scrollable-output" id="loremOut">Awaiting text copy...</div>
+            <button onclick="generateLorem()">Build Layout Copy</button>
+        </div>
+
+        <!-- CARD 7: HASH & CRYPTO CONVERTER -->
+        <div class="card">
+            <h2>Hash & Crypto Toolkit</h2>
+            <input type="text" id="cryptoInput" value="Hello World" placeholder="Enter string to process">
+            <div class="output" id="cryptoOut">
+                <strong>Base64:</strong> <span id="base64Out">-</span><br>
+                <strong>SHA-256 (Native):</strong> <span id="shaOut">-</span>
+            </div>
+            <button onclick="processCrypto()">Encode & Hash String</button>
+        </div>
+
+        <!-- CARD 8: QR CODE GENERATOR -->
+        <div class="card">
+            <h2>Instant QR Code Engine</h2>
+            <input type="text" id="qrInput" value="https://google.com" placeholder="Enter URL or credentials">
+            <div id="qrOutput" style="margin-top:10px;"></div>
+            <button onclick="generateQR()">Generate Code Block</button>
+        </div>
+
+        <!-- CARD 9: STRONG PASSPHRASE GENERATOR -->
+        <div class="card">
+            <h2>Diceware Strong Passphrase</h2>
+            <label>Word Count: <input type="number" id="phraseCount" min="3" max="6" value="4"></label>
+            <div class="output" id="phraseOut">--</div>
+            <button onclick="generatePassphrase()">Build Memorizable Key</button>
+        </div>
+
+        <!-- CARD 10: COLOR PALETTE -->
+        <div class="card">
+            <h2>Color Palette Generator</h2>
+            <div class="palette-container" id="paletteOut">
+                <div class="color-swatch" style="background:#cbd5e1"></div>
+                <div class="color-swatch" style="background:#94a3b8"></div>
+                <div class="color-swatch" style="background:#64748b"></div>
+                <div class="color-swatch" style="background:#475569"></div>
+            </div>
+            <button onclick="generatePalette()">Generate Complementary Scheme</button>
+        </div>
+
+        <!-- CARD 11: GRADIENT GENERATOR -->
+        <div class="card">
+            <h2>CSS Gradient Builder</h2>
+            <div id="gradientPreview" style="background: linear-gradient(90deg, #2563eb, #db2777);"></div>
+            <div class="output" id="gradientCode">linear-gradient(90deg, #2563eb, #db2777)</div>
+            <button onclick="generateGradient()">Blend New Transition</button>
+        </div>
+
+        <!-- CARD 12: BOX SHADOW CSS SLIDERS -->
+        <div class="card">
+            <h2>CSS Box Shadow Configurator</h2>
+            <label>Blur Radius: <input type="range" id="shadowBlur" min="0" max="50" value="10" oninput="updateShadow()"></label>
+            <label>Spread Position: <input type="range" id="shadowSpread" min="-20" max="20" value="2" oninput="updateShadow()"></label>
+            <div id="shadowPreview"></div>
+            <div class="output" id="shadowCode">box-shadow: 0px 10px 10px 2px rgba(0,0,0,0.3);</div>
+        </div>
+
+        <!-- CARD 13: PLACEHOLDER BLOCKS -->
+        <div class="card">
+            <h2>Image Placeholder Mock</h2>
+            <label>Dimensions: <input type="text" id="holderSize" value="300x150"></label>
+            <div id="placeholderOutput"></div>
+            <button onclick="generatePlaceholder()">Output Layout Block</button>
+        </div>
+
+        <!-- CARD 14: DICE ROLLER -->
+        <div class="card">
+            <h2>Tabletop Dice Engine</h2>
+            <label>Select Die Type:
+                <select id="diceType">
+                    <option value="6">D6 (Standard)</option>
+                    <option value="8">D8 (RPG)</option>
+                    <option value="12">D12 (RPG)</option>
+                    <option value="20">D20 (Critical Roll)</option>
+                </select>
+            </label>
+            <div class="output" id="diceOut">Result: --</div>
+            <button onclick="rollDice()">Roll Die</button>
+        </div>
+
+        <!-- CARD 15: WHEEL SPINNER -->
+        <div class="card">
+            <h2>Interactive Wheel Spinner</h2>
+            <input type="text" id="wheelItems" value="Yes, No, Maybe, Spin Again">
+            <canvas id="wheelCanvas" width="140" height="140"></canvas>
+            <div class="output" id="wheelOut">Target Outcome: --</div>
+            <button onclick="spinWheel()">Spin Selector Wheel</button>
+        </div>
+
+        <!-- CARD 16: TEAM SPLITTER -->
+        <div class="card">
+            <h2>Group / Team Partitioning</h2>
+            <textarea id="teamNames" rows="2" placeholder="Enter comma-separated roster paths..."></textarea>
+            <label>Target Team Count: <input type="number" id="teamCount" min="2" max="10" value="2"></label>
+            <div class="output" id="teamOut" style="white-space: pre-line;">Awaiting configurations...</div>
+            <button onclick="splitTeams()">Distribute Groups</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. CORE DATA LOGIC SETS ---
+        const firstNames = ['Alex', 'Jordan', 'Taylor', 'Morgan', 'Sam', 'Jamie', 'Casey', 'Robin', 'Liam', 'Olivia', 'Noah', 'Emma', 'Oliver', 'Ava', 'Elijah', 'Charlotte'];
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Wilson', 'Anderson', 'Taylor', 'Thomas', 'Moore', 'Jackson', 'Martin'];
+
+        const adjectives = ['Epic', 'Silver', 'Cosmic', 'Shadow', 'Quantum', 'Blazing', 'Silent', 'Swift', 'Frost', 'Neon', 'Golden', 'Iron', 'Thunder', 'Alpha', 'Omega', 'hyper', 'crypto', 'retro', 'pixel', 'vortex'];
+        const nouns = ['Falcon', 'Phoenix', 'Knight', 'Wizard', 'Shadow', 'Titan', 'Ranger', 'Hacker', 'Ninja', 'Wolf', 'Dragon', 'Cobra', 'Glitch', 'Matrix', 'Nexus', 'Pulse', 'Cipher', 'Viper', 'Ghost', 'Spectre'];
+
+        const triviaFacts = [
+            "The first computer bug was an actual real moth found trapped inside a relay in a Harvard Mark II computer in 1947.",
+            "The web's first photo was posted by Tim Berners-Lee in 1992 and featured the house band of CERN, 'Les Horribles Cernettes'.",
+            "SHA-256 is so secure that calculating all its variants by brute force would require computing more options than there are atoms in the universe.",
+            "A standard deck of cards can be shuffled into 8x10 to the power of 67 unique configurations. Every true shuffle has likely never happened before in history.",
+            "The domain name 'google.com' was originally planned to be named 'googol.com' but was permanently misspelled by investors on the domain registration paperwork.",
+            "Base64 encoding increases file sizes by approximately 33% because it uses 4 characters to store every 3 bytes of binary layout data."
+        ];
+
+        const passphraseWords = ['apple', 'banana', 'orange', 'rocket', 'galaxy', 'planet', 'anchor', 'bridge', 'castle', 'desert', 'forest', 'island', 'mountain', 'river', 'valley', 'window', 'mirror', 'candle', 'jacket', 'helmet', 'hammer', 'pencil', 'camera', 'guitar', 'shield', 'wizard', 'dragon', 'knight', 'matrix', 'cipher'];
+
+        const loremParagraphs = [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident."
+        ];
+
+        function runCoreSuite() {
+            const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowers = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+~`|}{[]:;?><,./-=';
+            const allChars = uppers + lowers + numbers + symbols;
+            
+            let pwd = '';
+            pwd += uppers[Math.floor(Math.random() * uppers.length)];
+            pwd += lowers[Math.floor(Math.random() * lowers.length)];
+            pwd += numbers[Math.floor(Math.random() * numbers.length)];
+            pwd += symbols[Math.floor(Math.random() * symbols.length)];
+            
+            for(let i=0; i<8; i++) pwd += allChars[Math.floor(Math.random() * allChars.length)];
+            pwd = pwd.split('').sort(() => 0.5 - Math.random()).join('');
+            
+            const name = firstNames[Math.floor(Math.random()*firstNames.length)] + " " + lastNames[Math.floor(Math.random()*lastNames.length)];
+            const n10 = Math.floor(Math.random() * 10) + 1;
+            const n100 = Math.floor(Math.random() * 100) + 1;
+            const coin = Math.random() < 0.5 ? 'Heads' : 'Tails';
+
+            document.getElementById('passwordOut').textContent = pwd;
+            document.getElementById('nameOut').textContent = name;
+            document.getElementById('num1To10Out').textContent = n10;
+            document.getElementById('num1To100Out').textContent = n100;
+            document.getElementById('coinOut').textContent = coin;
+        }
+
+        // --- USERNAME LOGIC ---
+        function generateUsernames() {
+            let outputs = [];
+            for (let i = 0; i < 3; i++) {
+                const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+                const noun = nouns[Math.floor(Math.random() * nouns.length)];
+                const num = Math.floor(Math.random() * 99) + 1;
+                outputs.push(`${adj}${noun}${num}`);
+            }
+            document.getElementById('usernameOut').innerHTML = outputs.join('<br>');
+        }
+
+        // --- TRIVIA LOGIC ---
+        function generateTrivia() {
+            const randomFact = triviaFacts[Math.floor(Math.random() * triviaFacts.length)];
+            document.getElementById('triviaOut').textContent = randomFact;
+        }
+
+        // --- ANAGRAM LOGIC ---
+        function scrambleWord() {
+            const word = document.getElementById('scrambleInput').value.trim();
+            if(!word) return;
+            const scrambled = word.split('').sort(() => 0.5 - Math.random()).join('');
+            document.getElementById('scrambleOut').textContent = scrambled;
+        }
+
+        // --- UUID LOGIC ---
+        function generateUUID() {
+            // Native RFC 4122 version 4 UUID generator
+            const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            document.getElementById('uuidOut').textContent = uuid;
+        }
+
+        // --- LOREM IPSUM LOGIC ---
+        function generateLorem() {
+            const count = parseInt(document.getElementById('loremCount').value) || 1;
+            let result = [];
+            for (let i = 0; i < Math.min(count, 4); i++) {
+                result.push(loremParagraphs[i]);
+            }
+            document.getElementById('loremOut').innerHTML = result.join('<br><br>');
+        }
+
+        // --- CRYPTO toolkit LOGIC ---
+        function processCrypto() {
+            const str = document.getElementById('cryptoInput').value;
+            // Native Base64 encoding
+            const base64 = btoa(unescape(encodeURIComponent(str)));
+            document.getElementById('base64Out').textContent = base64;
+
+            // Native SHA-256 Async Hash parser block
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            crypto.subtle.digest('SHA-256', data).then(buffer => {
+                const hashArray = Array.from(new Uint8Array(buffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                document.getElementById('shaOut').textContent = hashHex;
+            }).catch(() => {
+                document.getElementById('shaOut').textContent = "Not supported in local unsecure sandbox context";
+            });
+        }
+
+        // --- QR CODE UTILITY ENGINE ---
+        function generateQR() {
+            const queryData = encodeURIComponent(document.getElementById('qrInput').value);
+            // Uses standard open charting query interface for inline pixel matrices
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${queryData}`;
+            document.getElementById('qrOutput').innerHTML = `<img src="${qrUrl}" alt="QR Matrix Code">`;
+        }
+
+        // --- PASSPHRASE ENGINE ---
+        function generatePassphrase() {
+            const count = parseInt(document.getElementById('phraseCount').value) || 4;
+            let chunks = [];
+            for(let i=0; i<Math.min(count,6); i++) {
+                chunks.push(passphraseWords[Math.floor(Math.random() * passphraseWords.length)]);
+            }
+            document.getElementById('phraseOut').textContent = chunks.join('-');
+        }
+
+        // --- PALETTE LOGIC ---
+        function generatePalette() {
+            const container = document.getElementById('paletteOut');
+            container.innerHTML = '';
+            const baseHue = Math.floor(Math.random() * 360);
+            for (let i = 0; i < 4; i++) {
+                const hue = (baseHue + (i * 45)) % 360;
+                const hsl = `hsl(${hue}, 65%, 50%)`;
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = hsl;
+                swatch.textContent = `H${hue}`;
+                container.appendChild(swatch);
+            }
+        }
+
+        // --- GRADIENT LOGIC ---
+        function getRandomHex() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        }
+        function generateGradient() {
+            const c1 = getRandomHex();
+            const c2 = getRandomHex();
+            const angle = Math.floor(Math.random() * 4) * 90;
+            const gradientStyle = `linear-gradient(${angle}deg, ${c1}, ${c2})`;
+            document.getElementById('gradientPreview').style.background = gradientStyle;
+            document.getElementById('gradientCode').textContent = `background: ${gradientStyle};`;
+        }
+
+        // --- BOX SHADOW CSS SLIDERS ---
+        function updateShadow() {
+            const blur = document.getElementById('shadowBlur').value;
+            const spread = document.getElementById('shadowSpread').value;
+            const shadowValue = `0px 10px ${blur}px ${spread}px rgba(0,0,0,0.3)`;
+            document.getElementById('shadowPreview').style.boxShadow = shadowValue;
+            document.getElementById('shadowCode').textContent = `box-shadow: ${shadowValue};`;
+        }
+
+        // --- PLACEHOLDER IMAGE MATRIX ---
+        function generatePlaceholder() {
+            const size = document.getElementById('holderSize').value;
+            const color = getRandomHex().replace('#', '');
+            const targetUrl = `https://placehold.co/${size}/${color}/ffffff?text=Mock+Block`;
+            document.getElementById('placeholderOutput').innerHTML = `<img src="${targetUrl}" alt="Placeholder Output">`;
+        }
+
+        // --- DICE ENGINE ---
+        function rollDice() {
+            const faces = parseInt(document.getElementById('diceType').value);
+            const roll = Math.floor(Math.random() * faces) + 1;
+            document.getElementById('diceOut').textContent = `Rolled outcome: ${roll} (on D${faces})`;
+        }
+
+        // --- WHEEL SPINNER GRAPHICS CORE ---
+        let currentAngle = 0;
+        function drawWheel(options) {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const center = canvas.width / 2;
+            const arc = Math.PI / (options.length / 2);
+
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            options.forEach((opt, idx) => {
+                const angle = currentAngle + idx * arc;
+                ctx.fillStyle = idx % 2 === 0 ? '#3b82f6' : '#60a5fa';
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, center - 2, angle, angle + arc, false);
+                ctx.lineTo(center, center);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = "white";
+                ctx.translate(center, center);
+                ctx.rotate(angle + arc / 2);
+                ctx.font = "bold 9px sans-serif";
+                ctx.fillText(opt.substring(0, 5), center / 2.5, 3);
+                ctx.restore();
+            });
+        }
+
+        function spinWheel() {
+            const options = document.getElementById('wheelItems').value.split(',').map(x => x.trim()).filter(x => x);
+            if(!options.length) return;
+            
+            let displayCount = 0;
+            const interval = setInterval(() => {
+                currentAngle += 0.4;
+                drawWheel(options);
+                displayCount++;
+                if(displayCount > 20) {
+                    clearInterval(interval);
+                    const selected = options[Math.floor(Math.random() * options.length)];
+                    document.getElementById('wheelOut').innerHTML = `Selected Outcome: <strong>${selected}</strong>`;
+                }
+            }, 40);
+        }
+
+        // --- GROUPS & ROSTER DIVISION ---
+        function splitTeams() {
+            const namesInput = document.getElementById('teamNames').value;
+            const pool = namesInput.split(',').map(n => n.trim()).filter(n => n);
+            const totalTeams = parseInt(document.getElementById('teamCount').value);
+            
+            if(!pool.length) {
+                document.getElementById('teamOut').textContent = 'Please populate data nodes.';
+                return;
+            }
+
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            const teams = Array.from({ length: totalTeams }, () => []);
+
+            shuffled.forEach((name, index) => {
+                teams[index % totalTeams].push(name);
+            });
+
+            let outputString = '';
+            teams.forEach((team, idx) => {
+                outputString += `<strong>Team ${idx + 1}:</strong> ${team.join(', ') || 'Empty Node'}
+`;
+            });
+            document.getElementById('teamOut').innerHTML = outputString;
+        }
+
+        window.onload = () => {
+            updateShadow();
+            drawWheel(['Yes', 'No', 'Maybe', 'Spin']);
+        };
+    </script>
+</body>
+</html>
